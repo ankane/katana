@@ -1,6 +1,5 @@
 require "heroku"
 require "yaml"
-require "rake"
 
 module Katana
 
