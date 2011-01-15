@@ -57,7 +57,7 @@ Katana provides extra, Capistrano-like commands to make deployments easier.
     kat staging deploy:setup
 
 Initializes a git repo (if necessary), removes the "heroku" remote, creates a remote for
-the environment specified, and runs `update:config` and `update:stack` (see below for details).
+the environment specified, and runs `config:update` and `stack:update` (see below for details).
 
 ### deploy
 
@@ -65,13 +65,15 @@ the environment specified, and runs `update:config` and `update:stack` (see belo
 
 Pushes the master branch to Heroku, runs your migrations, and restarts the app.
 
-### update:config
+### config:update
 
     kat staging config:update
 
 Runs `config:add` with all the vars listed in your configuration file.
 
-### update:stack
+### stack:update
+
+    kat staging stack:update
 
 Runs `stack:migrate` with the stack listed in your configuration file.
 

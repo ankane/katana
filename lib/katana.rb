@@ -28,35 +28,14 @@ module Katana
       command = ARGV.shift || ""
       path = ARGV.join(" ")
 
-      case command
-      when "create"
-        lc("heroku create #{@config["app"]}")
-
-      when "deploy"
-        lc("git push #{@env} master")
-        hc("rake", "db:migrate")
-        hc("restart")
-
-      when "deploy:setup"
-        lc("git init") unless File.exists?(".git")
-
-        remotes = `git remote`.split("\n").select{|v| v == @env or v == "heroku"}
-        git_commands = remotes.map{|v| "git remote rm #{v}"}
-        git_commands << "git remote add #{@env} git@heroku.com:#{@config["app"]}.git"
-        lc(git_commands.join(" && "))
-
-        update_config
-        update_stack
-
-      when "config:update"
-        update_config
-
-      when "stack:update"
-        update_stack
-
-      when ""
+      if command == ""
         puts "Please specify a command."
+        exit
+      end
 
+      method_name = command.gsub(":", "_")
+      if respond_to?(method_name, true)
+        send(method_name)
       else
         # pass the command to heroku
         hc(command, path)
@@ -64,6 +43,8 @@ module Katana
     end
 
     private
+
+    # create config file
 
     def init(app)
       if File.exists?(CONFIG_PATH)
@@ -107,25 +88,49 @@ CONFIG
       end
     end
 
-    # heroku command
+    # helper functions
+
     def hc(command, path="")
       lc("heroku #{command} --app #{@config["app"]} #{path}")
     end
 
-    # local command
     def lc(command)
       puts command
       system(command)
       puts
     end
 
-    def update_config
+    # custom commands
+
+    def create
+      lc("heroku create #{@config["app"]}")
+    end
+
+    def deploy
+      lc("git push #{@env} master")
+      hc("rake", "db:migrate")
+      hc("restart")
+    end
+
+    def deploy_setup
+      lc("git init") unless File.exists?(".git")
+
+      remotes = `git remote`.split("\n").select{|v| v == @env or v == "heroku"}
+      git_commands = remotes.map{|v| "git remote rm #{v}"}
+      git_commands << "git remote add #{@env} git@heroku.com:#{@config["app"]}.git"
+      lc(git_commands.join(" && "))
+
+      config_update
+      stack_update
+    end
+
+    def config_update
       vars = (@config["config"] || {}).merge({"RACK_ENV" => @env})
       vars_str = vars.map{|k,v| "#{k}=#{v}"}.join(" ")
       hc("config:add", vars_str)
     end
 
-    def update_stack
+    def stack_update
       hc("stack:migrate", @config["stack"]) if @config["stack"]
     end
 
