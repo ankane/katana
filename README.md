@@ -1,6 +1,6 @@
 # Katana
 
-Simple multi-environment deployment for Heroku
+Manage multiple environments on Heroku with ease!
 
 This project was greatly inspired by [Capistrano](https://github.com/capistrano/capistrano) and [Heroku San](https://github.com/fastestforward/heroku_san).
 

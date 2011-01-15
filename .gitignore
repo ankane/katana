@@ -7,3 +7,5 @@ pkg
 *.sh
 .DS_Store
 .bundle/*
+.document
+.rspec
